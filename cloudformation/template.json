@@ -1,0 +1,135 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS in Action: Lambda",
+    "Parameters": {
+        "LambdaS3Bucket": {
+            "Description": "The name of the S3 bucket that contains the source code of your Lambda function.",
+            "Type": "String"
+        },
+        "LambdaS3AutodeployBucket": {
+            "Description": "The name of the S3 bucket that should be created for auto deployments.",
+            "Type": "String"
+        },
+        "LambdaS3Key": {
+            "Description": "The location and name of your source code .zip file.",
+            "Type": "String",
+            "Default": "aws-lambda-autodeploy-lambda.zip"
+        },
+        "SlackHookPath": {
+            "Description": "",
+            "Type": "String"
+        },
+        "SlackChannel": {
+            "Description": "",
+            "Type": "String"
+        },
+        "SlackUsername": {
+            "Description": "",
+            "Type": "String"
+        },
+        "SlackEmoji": {
+            "Description": "",
+            "Type": "String"
+        },
+    },
+    "Resources": {
+        "LambdaAutoDeployS3Bucket": {
+            "DependsOn": ["Lambda", "LambdaRole", "LambdaPermission"],
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": {"Fn::Join": ["", [{"Ref": "LambdaS3AutodeployBucket"}, ""]]},
+                "NotificationConfiguration": {
+                    "LambdaConfigurations": [{
+                        "Event": "s3:ObjectCreated:*",
+                        "Function": {"Fn::GetAtt": ["Lambda", "Arn"]}
+                    }]
+                }
+            }
+        },
+        "LambdaRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                        },
+                        "Action": ["sts:AssumeRole"]
+                    }]
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "logs",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:*"
+                            ],
+                            "Resource": "arn:aws:logs:*:*:*"
+                        }]
+                    }
+                }, {
+                    "PolicyName": "s3-lambda",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": ["s3:GetObject"],
+                            "Resource": [{"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "LambdaS3AutodeployBucket"}, "/*"]]}]
+                        }]
+                    }
+                }, {
+                    "PolicyName": "lambda",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "lambda:*"
+                            ],
+                            "Resource": "*"
+                        }]
+                    }
+                }]
+            }
+        },
+        "Lambda": {
+            "Type": "AWS::Lambda::Function",
+            "DependsOn": ["LambdaRole"],
+            "Properties": {
+                "Code": {
+                    "S3Bucket": {"Ref": "LambdaS3Bucket"},
+                    "S3Key": {"Ref": "LambdaS3Key"}
+                },
+                "FunctionName": {"Ref": "LambdaS3AutodeployBucket"},
+                "Description": "generic handler",
+                "Handler": "index.handler",
+                "MemorySize": 128,
+                "Environment": {
+                    "Variables": {
+                        "SLACK_HOOK_PATH": {"Ref": "SlackHookPath"},
+                        "SLACK_CHANNEL": {"Ref": "SlackChannel"},
+                        "SLACK_USERNAME": {"Ref": "SlackUsername"},
+                        "SLACK_EMOJI": {"Ref": "SlackEmoji"},
+                    }
+                },
+                "Role": {"Fn::GetAtt": ["LambdaRole", "Arn"]},
+                "Runtime": "nodejs4.3",
+                "Timeout": 30
+            }
+        },
+        "LambdaPermission": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "Action": "lambda:invokeFunction",
+            "FunctionName": {"Fn::GetAtt": ["Lambda", "Arn"]},
+            "Principal": "s3.amazonaws.com",
+            "SourceArn": {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "LambdaS3AutodeployBucket"}, ""]]}
+          }
+        }
+    }
+}

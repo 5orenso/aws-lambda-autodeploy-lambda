@@ -1,0 +1,44 @@
+{
+  "name": "lambda-auto-deploy",
+  "description": "Auto deploy Lambda function from S3.",
+  "version": "0.0.1",
+  "homepage": "https://github.com/5orenso/ts/lambda/lambda-auto-deploy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/5orenso/ts/lambda/lambda-auto-deploy"
+  },
+  "bugs": {
+    "url": "https://github.com/5orenso/ts/issues"
+  },
+  "author": {
+    "name": "Øistein Sørensen",
+    "email": "sorenso@gmail.com"
+  },
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=4.3.0"
+  },
+  "scripts": {
+    "test": "grunt"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.3.8",
+    "aws-sdk-mock": "^1.1.0",
+    "body-parser": "^1.14.2",
+    "buster": "^0.7.18",
+    "buster-istanbul": "^0.1.15",
+    "grunt": "^1.0.1",
+    "grunt-buster": "^0.4.1",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-nodeunit": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-coveralls": "^1.0.0",
+    "grunt-jscs": "^3.0.1",
+    "grunt-nodemon": "^0.4.0",
+    "grunt-shell": "^2.1.0",
+    "request": "~2.79.0",
+    "sinon": "^1.15.4"
+  },
+  "keywords": [],
+  "dependencies": {}
+}
