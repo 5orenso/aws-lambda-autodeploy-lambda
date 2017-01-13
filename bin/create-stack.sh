@@ -66,7 +66,7 @@ if [ ! -z "$HELP" ]; then
     echo "     $ cp ./set-env-dist.sh ./set-env.sh"
     echo "     $ vim ./set-env.sh"
     echo "     $ . ./set-env.sh"
-    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET}"
+    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET} --create-bucket-configuration LocationConstraint=eu-west-1"
     echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/aws-lambda-autodeploy-lambda.zip s3://${LAMBDA_S3_BUCKET}/aws-lambda-autodeploy-lambda.zip"
     echo ""
     echo "To create a new stack:"
@@ -78,7 +78,7 @@ if [ ! -z "$HELP" ]; then
     exit 1;
 fi
 
-if [ -z "${SLACK_HOOK_PATH2}" ] || [ -z "${SLACK_CHANNEL}" ] || [ -z "${SLACK_USERNAME}" ] ||
+if [ -z "${SLACK_HOOK_PATH}" ] || [ -z "${SLACK_CHANNEL}" ] || [ -z "${SLACK_USERNAME}" ] ||
     [ -z "${LAMBDA_S3_BUCKET}" ] || [ -z "${LAMBDA_S3_AUTODEPLOY_BUCKET}" ]; then
     echo ">> Error! Missing enviromment variables."
     echo "Please edit ./set-env.sh with your correct settings and then source the file."
@@ -87,7 +87,7 @@ if [ -z "${SLACK_HOOK_PATH2}" ] || [ -z "${SLACK_CHANNEL}" ] || [ -z "${SLACK_US
     echo "     $ cp ./set-env-dist.sh ./set-env.sh"
     echo "     $ vim ./set-env.sh"
     echo "     $ . ./set-env.sh"
-    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET}"
+    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET} --create-bucket-configuration LocationConstraint=eu-west-1"
     echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/aws-lambda-autodeploy-lambda.zip s3://${LAMBDA_S3_BUCKET}/aws-lambda-autodeploy-lambda.zip"
     echo ""
     exit 1;
@@ -97,6 +97,7 @@ echo "Running \"${STACK_ACTION}\" on stack \"${STACK_NAME}\""
 aws cloudformation ${STACK_ACTION} --region ${AWS_REGION} ${AWS_PROFILE} --stack-name ${STACK_NAME} \
     --template-body file://${DIR}/../cloudformation/template.json --capabilities CAPABILITY_IAM \
     --parameters \
+        ParameterKey=LambdaFunctionName,ParameterValue=${LAMBDA_FUNCTION_NAME} \
         ParameterKey=LambdaS3Bucket,ParameterValue=${LAMBDA_S3_BUCKET} \
         ParameterKey=LambdaS3AutodeployBucket,ParameterValue=${LAMBDA_S3_AUTODEPLOY_BUCKET} \
         ParameterKey=SlackHookPath,ParameterValue=${SLACK_HOOK_PATH} \
@@ -106,4 +107,8 @@ aws cloudformation ${STACK_ACTION} --region ${AWS_REGION} ${AWS_PROFILE} --stack
 
 echo "Waiting for stack \"${STACK_NAME}\" to finish action \"${STACK_ACTION}\""
 aws cloudformation --region ${AWS_REGION} ${AWS_PROFILE} wait stack-update-complete --stack-name ${STACK_NAME}
-echo "PurplePipe API stack update done"
+echo "Stack \"${STACK_NAME}\" \"${STACK_ACTION}\" is done."
+echo ""
+echo "Now it's time to test it:"
+echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/aws-lambda-autodeploy-lambda.zip s3://${LAMBDA_S3_AUTODEPLOY_BUCKET}/aws-lambda-autodeploy-lambda.zip"
+echo ""

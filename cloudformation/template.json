@@ -2,6 +2,10 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "AWS in Action: Lambda",
     "Parameters": {
+        "LambdaFunctionName": {
+            "Description": "The name of the S3 bucket that contains the source code of your Lambda function.",
+            "Type": "String"
+        },
         "LambdaS3Bucket": {
             "Description": "The name of the S3 bucket that contains the source code of your Lambda function.",
             "Type": "String"
@@ -105,7 +109,7 @@
                     "S3Bucket": {"Ref": "LambdaS3Bucket"},
                     "S3Key": {"Ref": "LambdaS3Key"}
                 },
-                "FunctionName": {"Ref": "LambdaS3AutodeployBucket"},
+                "FunctionName": {"Ref": "LambdaFunctionName"},
                 "Description": "generic handler",
                 "Handler": "index.handler",
                 "MemorySize": 128,
