@@ -1,7 +1,7 @@
 ## Auto deploy lambda functions from S3
 
 [![Build Status](https://travis-ci.org/5orenso/aws-lambda-autodeploy-lambda.svg?branch=master)](https://travis-ci.org/5orenso/aws-lambda-autodeploy-lambda)
-[![Coverage Status](https://coveralls.io/repos/github/5orenso/aws-lambda-boilerplate/badge.svg?branch=master)](https://coveralls.io/github/5orenso/aws-lambda-boilerplate?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/5orenso/aws-lambda-autodeploy-lambda/badge.svg?branch=master)](https://coveralls.io/github/5orenso/aws-lambda-autodeploy-lambda?branch=master)
 
 Lambda handler to automatically publish Lambda functions when source is uploaded to S3.
 
