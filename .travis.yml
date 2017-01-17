@@ -1,0 +1,33 @@
+language: node_js
+node_js:
+- '4.3'
+matrix:
+  fast_finish: true
+before_install: npm install -g grunt-cli
+# env:
+# - CXX=g++-4.8
+# addons:
+#   apt:
+#     sources:
+#     - ubuntu-toolchain-r-test
+#     packages:
+#     - g++-4.8
+install:
+- npm install
+- npm install -g npm
+sudo: false
+after_success: "grunt build"
+deploy:
+  provider: s3
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  bucket: ffe-lambda-autodeploy-lambda
+  region: eu-west-1
+  local_dir: dist
+  # upload-dir: lambda
+  acl: private
+  detect_encoding: true
+  skip_cleanup: true
+notifications:
+    email:
+        on_failure: always
