@@ -2,6 +2,8 @@
 
 set -e;
 
+STACK_NAME=${LAMBDA_FUNCTION_NAME:-'aws-lambda-autodeploy-lambda'}
+
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
     DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
@@ -47,13 +49,12 @@ if [ ! -z "$AWS_PROFILE" ]; then
     AWS_PROFILE="--profile ${AWS_PROFILE}"
 fi
 AWS_REGION=${AWS_REGION:-'eu-west-1'}
-STACK_NAME=aws-lambda-autodeploy-lambda
 
 if [ ! -z "$HELP" ]; then
     echo "bash ${0} - help"
     echo "    [-h|--help]"
     echo "    [-u|--update-stack]"
-    echo "    [-r|--aws-region <awd region>]"
+    echo "    [-r|--aws-region <aws region>]"
     echo "    [-p|--aws-profile <aws profile>]"
     echo ""
     echo "This script will create or update your cloudformation stack. All actions can be "
@@ -66,14 +67,14 @@ if [ ! -z "$HELP" ]; then
     echo "     $ cp ./set-env-dist.sh ./set-env.sh"
     echo "     $ vim ./set-env.sh"
     echo "     $ . ./set-env.sh"
-    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET} --create-bucket-configuration LocationConstraint=eu-west-1"
-    echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/aws-lambda-autodeploy-lambda.zip s3://${LAMBDA_S3_BUCKET}/aws-lambda-autodeploy-lambda.zip"
+    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET} --create-bucket-configuration LocationConstraint=${AWS_REGION}"
+    echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/${STACK_NAME}.zip s3://${LAMBDA_S3_BUCKET}/${STACK_NAME}.zip"
     echo ""
     echo "To create a new stack:"
-    echo "     $ bash ${0} --aws-profile myprofile --aws-region eu-west-1"
+    echo "     $ bash ${0} --aws-profile myprofile --aws-region ${AWS_REGION}"
     echo ""
     echo "To update the stack:"
-    echo "     $ bash ${0} --aws-profile myprofile --aws-region eu-west-1"
+    echo "     $ bash ${0} --aws-profile myprofile --aws-region ${AWS_REGION}"
     echo ""
     exit 1;
 fi
@@ -87,8 +88,8 @@ if [ -z "${SLACK_HOOK_PATH}" ] || [ -z "${SLACK_CHANNEL}" ] || [ -z "${SLACK_USE
     echo "     $ cp ./set-env-dist.sh ./set-env.sh"
     echo "     $ vim ./set-env.sh"
     echo "     $ . ./set-env.sh"
-    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET} --create-bucket-configuration LocationConstraint=eu-west-1"
-    echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/aws-lambda-autodeploy-lambda.zip s3://${LAMBDA_S3_BUCKET}/aws-lambda-autodeploy-lambda.zip"
+    echo "     $ aws s3api create-bucket --region ${AWS_REGION} ${AWS_PROFILE} --bucket ${LAMBDA_S3_BUCKET} --create-bucket-configuration LocationConstraint=${AWS_REGION}"
+    echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/${STACK_NAME}.zip s3://${LAMBDA_S3_BUCKET}/${STACK_NAME}.zip"
     echo ""
     exit 1;
 fi
@@ -100,6 +101,7 @@ aws cloudformation ${STACK_ACTION} --region ${AWS_REGION} ${AWS_PROFILE} --stack
         ParameterKey=LambdaFunctionName,ParameterValue=${LAMBDA_FUNCTION_NAME} \
         ParameterKey=LambdaS3Bucket,ParameterValue=${LAMBDA_S3_BUCKET} \
         ParameterKey=LambdaS3AutodeployBucket,ParameterValue=${LAMBDA_S3_AUTODEPLOY_BUCKET} \
+        ParameterKey=LambdaS3Key,ParameterValue=${LAMBDA_FUNCTION_NAME}.zip \
         ParameterKey=SlackHookPath,ParameterValue=${SLACK_HOOK_PATH} \
         ParameterKey=SlackChannel,ParameterValue=${SLACK_CHANNEL} \
         ParameterKey=SlackUsername,ParameterValue=${SLACK_USERNAME} \
@@ -110,5 +112,5 @@ aws cloudformation --region ${AWS_REGION} ${AWS_PROFILE} wait stack-update-compl
 echo "Stack \"${STACK_NAME}\" \"${STACK_ACTION}\" is done."
 echo ""
 echo "Now it's time to test it:"
-echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/aws-lambda-autodeploy-lambda.zip s3://${LAMBDA_S3_AUTODEPLOY_BUCKET}/aws-lambda-autodeploy-lambda.zip"
+echo "     $ aws s3 cp --region ${AWS_REGION} ${AWS_PROFILE} ${DIR}/../dist/${STACK_NAME}.zip s3://${LAMBDA_S3_AUTODEPLOY_BUCKET}/${STACK_NAME}.zip"
 echo ""
