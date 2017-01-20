@@ -1,8 +1,17 @@
 'use strict';
 
 module.exports = function (grunt) {
+    require('time-grunt')(grunt);
+    let currentBranchName = (process.env.TRAVIS_PULL_REQUEST_BRANCH === '' ?
+        process.env.TRAVIS_BRANCH : process.env.TRAVIS_PULL_REQUEST_BRANCH);
+    if (currentBranchName === 'master' || currentBranchName == null) {
+        currentBranchName = '';
+    } else {
+        currentBranchName = '-' + currentBranchName;
+    }
     // Project configuration.
     grunt.initConfig({
+        currentBranch: currentBranchName,
         packetName: 'aws-lambda-autodeploy-lambda',
         staticLambdaBucket: 'aws-lambda-static',
         autoLambdaBucket: 'aws-lambda-autodeploy-lambda',
@@ -43,7 +52,7 @@ module.exports = function (grunt) {
                     'mkdir -p dist',
                     'mv ./node_modules ./node_modules2',
                     'npm install --production',
-                    'zip -FSr  dist/<%= packetName %>.zip ./ ' +
+                    'zip -FSr  dist/<%= packetName %><%= currentBranch %>.zip ./ ' +
                         '-x "*dist*" "bin/*" ".git*" "*.md" "*.DS_Store" "*.sh" "*test*" ' +
                         '"package.json" "Gruntfile.js" ' +
                         '"*node_modules2*" "*coverage/*" ".js*" "*doc/*"',
@@ -52,11 +61,10 @@ module.exports = function (grunt) {
                     'echo ""',
                     'echo "TODO:"',
                     'echo "Upload the zip file to S3 to be able to run it from Lambda."',
-                    'echo "$ aws s3 cp dist/<%= packetName %>.zip s3://<%= staticLambdaBucket %>/<%= packetName %>.zip"',
+                    'echo "$ aws s3 cp dist/<%= packetName %><%= currentBranch %>.zip s3://<%= staticLambdaBucket %>/<%= packetName %><%= currentBranch %>.zip"',
                     'echo ""',
                     'echo "Or to auto update the aws-lambda-autodeploy-lambda :"',
-                    'echo "$ aws s3 cp dist/<%= packetName %>.zip s3://<%= autoLambdaBucket %>/<%= packetName %>.zip"',
-                    'echo ""'
+                    'echo "$ aws s3 cp dist/<%= packetName %><%= currentBranch %>.zip s3://<%= autoLambdaBucket %>/<%= packetName %><%= currentBranch %>.zip"'
                 ].join('&&')
             }
             // jscs:enable
