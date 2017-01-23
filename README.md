@@ -99,3 +99,11 @@ $ npm install -g npm-check-updates
 $ ncu -u
 $ npm install --save --no-optional
 ```
+
+
+## Other Resources
+
+* [AWS Lambda boilerplate](https://github.com/5orenso/aws-lambda-boilerplate)
+* [Automated AWS Lambda update](https://github.com/5orenso/aws-lambda-autodeploy-lambda)
+* [API Gateway setup with Cloudformation](https://github.com/5orenso/aws-cloudformation-api-gateway)
+
