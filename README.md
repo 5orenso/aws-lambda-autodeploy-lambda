@@ -27,6 +27,11 @@ __"hello-world.zip" will try to update a Lambda function with the name "hello-wo
 
 ## Howto
 
+### Create S3 bucket before you start
+```bash
+$ aws s3api create-bucket --profile ife --bucket aws-lambda-static --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1
+```
+
 ### Install Node.js modules
 
 ```bash
@@ -37,7 +42,6 @@ $ npm install
 ### Build a new release
 
 ```bash
-# Build file:
 $ grunt build
 ```
 
@@ -106,4 +110,3 @@ $ npm install --save --no-optional
 * [AWS Lambda boilerplate](https://github.com/5orenso/aws-lambda-boilerplate)
 * [Automated AWS Lambda update](https://github.com/5orenso/aws-lambda-autodeploy-lambda)
 * [API Gateway setup with Cloudformation](https://github.com/5orenso/aws-cloudformation-api-gateway)
-
