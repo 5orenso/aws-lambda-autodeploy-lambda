@@ -107,6 +107,8 @@ $ npm install --save --no-optional
 
 ## Other Resources
 
+* [AWS Basic setup with Cloudformation](https://github.com/5orenso/aws-cloudformation-base)
 * [AWS Lambda boilerplate](https://github.com/5orenso/aws-lambda-boilerplate)
 * [Automated AWS Lambda update](https://github.com/5orenso/aws-lambda-autodeploy-lambda)
-* [API Gateway setup with Cloudformation](https://github.com/5orenso/aws-cloudformation-api-gateway)
+* [AWS API Gateway setup with Cloudformation](https://github.com/5orenso/aws-cloudformation-api-gateway)
+* [AWS IoT setup with Cloudformation](https://github.com/5orenso/aws-cloudformation-iot)
